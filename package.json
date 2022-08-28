@@ -1,0 +1,25 @@
+{
+  "name": "libary-book-record-management-",
+  "version": "1.0.0",
+  "description": "This is a book record management API Backend for the management of records and books",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev":"nodemon server.js "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aditya-raj77x/Libary-Book-Record-Management-.git"
+  },
+  "author": "ADITYA RAJ",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aditya-raj77x/Libary-Book-Record-Management-/issues"
+  },
+  "homepage": "https://github.com/Aditya-raj77x/Libary-Book-Record-Management-#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19"
+  }
+}
