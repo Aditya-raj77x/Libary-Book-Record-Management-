@@ -14,7 +14,7 @@ const router = express.Router();
  * Access:public
  * Parameters:None
  */
-router.get("/users", (req, res) => {
+router.get("/", (req, res) => {
   res.status(200).json({
     success: true,
     message: users,
@@ -29,7 +29,7 @@ router.get("/users", (req, res) => {
  * Parameters: id
  */
 
-router.get("/users/:id", (req, res) => {
+router.get("/:id", (req, res) => {
   const { id } = req.params;
   const user = users.find((each) => each.id === id);
   if (!user) {
@@ -52,7 +52,7 @@ router.get("/users/:id", (req, res) => {
  * Parameters: None
  */
 
-router.post("/users", (req, res) => {
+router.post("/", (req, res) => {
   const { id, name, surname, email, subscriptionType, subscriptionDate } =
     req.body;
   const user = users.find((each) => each.id === id);
@@ -83,7 +83,7 @@ router.post("/users", (req, res) => {
  * Access:public
  * Parameters: id
  */
-router.put("/users/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   const { id } = req.params;
   const { data } = req.body;
   const user = users.find((each) => each.id === id);
@@ -114,7 +114,7 @@ router.put("/users/:id", (req, res) => {
  * Access:public
  * Parameters: id
  */
-router.delete("/users/:id", (req, res) => {
+router.delete("/:id", (req, res) => {
   const { id } = req.params;
   const user = users.find((each) => each.id === id);
   if (!user) {
