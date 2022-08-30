@@ -76,4 +76,152 @@ router.get("/issued/book",(req,res)=>{
     })
 })
 
+/**
+ * Route:/books
+ * method:POST
+ * Descripstion:Adding a new book
+ * Access:public
+ * Parameters: None
+ * data: author name genra price publisher id
+ */
+router.post("/",(req,res)=>{
+    const {data}=req.body
+    if(!data) return res.status(400).json({
+        success:false,
+        message:"no data provided"
+    })
+    const book=books.find((each)=> each.id === data.id)
+    if(book) return res.status(404).json({
+        success:false,
+        message:"id already exist"
+    })
+
+    const allbooks=[...books,data]
+    return res.status(200).json({
+        success:true,
+        data:allbooks
+    })
+
+})
+
+/**
+ * Route:/books/:id
+ * method:PUT
+ * Descripstion:Updating a book
+ * Access:public
+ * Parameters: id
+ * data: author name genra price publisher id
+ */
+
+router.put("/:id",(req,res)=>{
+    const {id}=req.params
+    const {data}=req.body
+    const book =books.find((each)=>each.id===id)
+    if(!data) return res.status(400).json({
+        success:false,
+        message:"no data sent by the user"
+    })
+
+    if(!book) return res.status(400).json({
+        success:false,
+        message:"book not found with this id"
+    })
+    const updateData=books.map((each)=>{
+        if(each.id===id){
+            return{...each,...data}
+        }
+        return each
+    })
+    return res.status(200).json({
+        success:true,
+        data:updateData
+    })
+})
+
+/**
+ * Route:/books/issuedWithFine
+ * method:Get
+ * Descripstion:Getting all books with fine
+ * Access:public
+ * Parameters: None
+ * data: None
+ */
+router.get("/issuedBook/WithFine",(req,res)=>{
+    const allIssueUser=users.filter((each)=>{
+        if(each.issuedBook){
+            return each
+        }
+    
+    })
+
+    if(!allIssueUser) return res.status(400).json({
+        success:false,
+        message:"no issued books"
+    })
+    const getDateInDays=(data="")=>{
+        let date
+        if(data===""){
+          date=new Date()//current date
+        }else{
+          date= new Date(data)//date on bases of data variable
+        }
+        let days=Math.floor(date/(1000*60*60*24))// 60sec 60min 24 hours into 1000(cuz its in miliseconds)
+        return days
+      }
+      
+     
+     const user=allIssueUser.map((each)=>{
+        const getSubType=(date)=>{
+            if(each.subscriptionType==="Basic"){
+              date=date+90
+            }else if(each.subscriptionType==="Standard"){
+              date=date+180
+            }else if(each.subscriptionType==="Premium"){
+              date=date+365
+            }
+            return date
+          }
+        let returnDate = getDateInDays(each.returnDate);
+        let currentDate = getDateInDays();
+        let subscriptionDate = getDateInDays(each.subscriptionDate);
+        let subscriptionExpiration = getSubType(subscriptionDate);
+
+        const data = {
+            ...each,
+            fine:
+              returnDate < currentDate
+                ? subscriptionExpiration <= currentDate
+                  ? 200
+                  : 100
+                : 0,
+            
+          };
+          return data
+      
+     })
+    const userWithFine=user.filter((each)=>{
+        if(each.fine==0){
+            
+        }else{
+            return each
+        }
+    })
+    const finalData=userWithFine.map((Each)=>{
+        return books.map((ea)=> {
+            if(Each.issuedBook===ea.id){
+                const rex={
+                    ...ea,
+                    fine:Each.fine
+
+                }
+                return rex
+            }
+        })
+    })
+    
+    
+    
+    res.status(200).send(finalData)
+     
+})
 module.exports = router
