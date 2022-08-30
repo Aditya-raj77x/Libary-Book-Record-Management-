@@ -221,7 +221,10 @@ router.get("/issuedBook/WithFine",(req,res)=>{
     
     
     
-    res.status(200).send(finalData)
+    res.status(200).json({
+        success:true,
+        data:finalData
+    })
      
 })
 module.exports = router
