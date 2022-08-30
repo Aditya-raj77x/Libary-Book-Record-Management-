@@ -207,7 +207,7 @@ router.get("/issuedBook/WithFine",(req,res)=>{
         }
     })
     const finalData=userWithFine.map((Each)=>{
-        return books.map((ea)=> {
+        return books.filter((ea)=> {
             if(Each.issuedBook===ea.id){
                 const rex={
                     ...ea,
@@ -218,12 +218,14 @@ router.get("/issuedBook/WithFine",(req,res)=>{
             }
         })
     })
+    const fd=[...finalData]
+    
     
     
     
     res.status(200).json({
         success:true,
-        data:finalData
+        data:fd
     })
      
 })
