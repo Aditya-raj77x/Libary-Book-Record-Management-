@@ -1,11 +1,19 @@
 const express = require("express");
-const app = express();
+
 const port = 8081;
+const dotenv=require("dotenv")
+
+//dataBase Conection
+const DBS=require("./databaseConnection")
 
 // importing routies
 const usersRouter=require("./routes/users")
 const booksRouter=require("./routes/books")
 
+dotenv.config()
+
+const app = express();
+DBS()
 app.use(express.json());
 
 app.get("/", (req, res) => {
