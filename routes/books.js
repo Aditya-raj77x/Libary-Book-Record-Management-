@@ -3,6 +3,13 @@ const express = require("express");
 //importing books data
 const { users } = require("../data/users.json");
 const { books } = require("../data/books.json");
+const { model } = require("mongoose");
+
+//importing model
+const { userModel, bookModel } = require("../models");
+//importing functions
+const { getAllBooks, getAllIssuedBooks, getanyBookById } = require("../controller/book.controler");
+
 
 const router = express.Router();
 
@@ -15,12 +22,7 @@ const router = express.Router();
  * Access:public
  * Parameters: None
  */
-router.get("/",(req,res)=>{
-    res.status(200).json({
-        success:true,
-        data:books
-    })
-})
+router.get("/", getAllBooks);
 
 /**
  * Route:/books/id
@@ -29,18 +31,8 @@ router.get("/",(req,res)=>{
  * Access:public
  * Parameters: None
  */
- router.get("/:id",(req,res)=>{
-     const {id}=req.params
-     const book=books.find((each)=> each.id===id)
-     if(!book) return res.status(404).json({
-         success:false,
-         message:"book not found"
-     })
-     return res.status(200).json({
-         success:true,
-         data:book
-     })
-})
+router.get("/:id",getanyBookById);
+    
 
 /**
  * Route:/books/issued/book
@@ -49,32 +41,7 @@ router.get("/",(req,res)=>{
  * Access:public
  * Parameters: None
  */
-router.get("/issued/book",(req,res)=>{
-    const userWithIssueBook=users.filter((each)=>{
-        if(each.issuedBook) return each
-    })
-    const issueBook=[ ]
-    userWithIssueBook.forEach((each)=>{
-        const book=books.find((book)=> book.id===each.issuedBook)
-        book.issuedBy=each.name
-        book.issuedDate=each.issuedDate
-        book.returnDate=each.returnDate
-        issueBook.push(book)
-        
-    })
-
-
-    if(issueBook.length===0){
-        return res.status(404).json({
-            success:false,
-            message:"no issued book at the moment"
-        })
-    }
-    return res.status(200).json({
-        success:true,
-        data:issueBook
-    })
-})
+router.get("/issued/book", getAllIssuedBooks);
 
 /**
  * Route:/books
@@ -84,22 +51,22 @@ router.get("/issued/book",(req,res)=>{
  * Parameters: None
  * data: author name genra price publisher id
  */
-router.post("/",(req,res)=>{
-    const {data}=req.body
-    if(!data) return res.status(400).json({
-        success:false,
-        message:"no data provided"
+router.post("/", (req, res) => {
+    const { data } = req.body
+    if (!data) return res.status(400).json({
+        success: false,
+        message: "no data provided"
     })
-    const book=books.find((each)=> each.id === data.id)
-    if(book) return res.status(404).json({
-        success:false,
-        message:"id already exist"
+    const book = books.find((each) => each.id === data.id)
+    if (book) return res.status(404).json({
+        success: false,
+        message: "id already exist"
     })
 
-    const allbooks=[...books,data]
+    const allbooks = [...books, data]
     return res.status(200).json({
-        success:true,
-        data:allbooks
+        success: true,
+        data: allbooks
     })
 
 })
@@ -113,28 +80,28 @@ router.post("/",(req,res)=>{
  * data: author name genra price publisher id
  */
 
-router.put("/:id",(req,res)=>{
-    const {id}=req.params
-    const {data}=req.body
-    const book =books.find((each)=>each.id===id)
-    if(!data) return res.status(400).json({
-        success:false,
-        message:"no data sent by the user"
+router.put("/:id", (req, res) => {
+    const { id } = req.params
+    const { data } = req.body
+    const book = books.find((each) => each.id === id)
+    if (!data) return res.status(400).json({
+        success: false,
+        message: "no data sent by the user"
     })
 
-    if(!book) return res.status(400).json({
-        success:false,
-        message:"book not found with this id"
+    if (!book) return res.status(400).json({
+        success: false,
+        message: "book not found with this id"
     })
-    const updateData=books.map((each)=>{
-        if(each.id===id){
-            return{...each,...data}
+    const updateData = books.map((each) => {
+        if (each.id === id) {
+            return { ...each, ...data }
         }
         return each
     })
     return res.status(200).json({
-        success:true,
-        data:updateData
+        success: true,
+        data: updateData
     })
 })
 
@@ -146,41 +113,41 @@ router.put("/:id",(req,res)=>{
  * Parameters: None
  * data: None
  */
-router.get("/issuedBook/WithFine",(req,res)=>{
-    const allIssueUser=users.filter((each)=>{
-        if(each.issuedBook){
+router.get("/issuedBook/WithFine", (req, res) => {
+    const allIssueUser = users.filter((each) => {
+        if (each.issuedBook) {
             return each
         }
-    
+
     })
 
-    if(!allIssueUser) return res.status(400).json({
-        success:false,
-        message:"no issued books"
+    if (!allIssueUser) return res.status(400).json({
+        success: false,
+        message: "no issued books"
     })
-    const getDateInDays=(data="")=>{
+    const getDateInDays = (data = "") => {
         let date
-        if(data===""){
-          date=new Date()//current date
-        }else{
-          date= new Date(data)//date on bases of data variable
+        if (data === "") {
+            date = new Date()//current date
+        } else {
+            date = new Date(data)//date on bases of data variable
         }
-        let days=Math.floor(date/(1000*60*60*24))// 60sec 60min 24 hours into 1000(cuz its in miliseconds)
+        let days = Math.floor(date / (1000 * 60 * 60 * 24))// 60sec 60min 24 hours into 1000(cuz its in miliseconds)
         return days
-      }
-      
-     
-     const user=allIssueUser.map((each)=>{
-        const getSubType=(date)=>{
-            if(each.subscriptionType==="Basic"){
-              date=date+90
-            }else if(each.subscriptionType==="Standard"){
-              date=date+180
-            }else if(each.subscriptionType==="Premium"){
-              date=date+365
+    }
+
+
+    const user = allIssueUser.map((each) => {
+        const getSubType = (date) => {
+            if (each.subscriptionType === "Basic") {
+                date = date + 90
+            } else if (each.subscriptionType === "Standard") {
+                date = date + 180
+            } else if (each.subscriptionType === "Premium") {
+                date = date + 365
             }
             return date
-          }
+        }
         let returnDate = getDateInDays(each.returnDate);
         let currentDate = getDateInDays();
         let subscriptionDate = getDateInDays(each.subscriptionDate);
@@ -189,44 +156,44 @@ router.get("/issuedBook/WithFine",(req,res)=>{
         const data = {
             ...each,
             fine:
-              returnDate < currentDate
-                ? subscriptionExpiration <= currentDate
-                  ? 200
-                  : 100
-                : 0,
-            
-          };
-          return data
-      
-     })
-    const userWithFine=user.filter((each)=>{
-        if(each.fine==0){
-            
-        }else{
+                returnDate < currentDate
+                    ? subscriptionExpiration <= currentDate
+                        ? 200
+                        : 100
+                    : 0,
+
+        };
+        return data
+
+    })
+    const userWithFine = user.filter((each) => {
+        if (each.fine == 0) {
+
+        } else {
             return each
         }
     })
-    const finalData=userWithFine.map((Each)=>{
-        return books.filter((ea)=> {
-            if(Each.issuedBook===ea.id){
-                const rex={
+    const finalData = userWithFine.map((Each) => {
+        return books.filter((ea) => {
+            if (Each.issuedBook === ea.id) {
+                const rex = {
                     ...ea,
-                    fine:Each.fine
+                    fine: Each.fine
 
                 }
                 return rex
             }
         })
     })
-    const fd=[...finalData]
-    
-    
-    
-    
+    const fd = [...finalData]
+
+
+
+
     res.status(200).json({
-        success:true,
-        data:fd
+        success: true,
+        data: fd
     })
-     
+
 })
 module.exports = router
