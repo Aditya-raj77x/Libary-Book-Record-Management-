@@ -19,15 +19,20 @@ const userSchema = new Schema(
             ref: "Book",
             required: false//by default its false 
         },
+        issuedDate: {
+            type: String,
+            
+            required: false//by default its false 
+        },
         returnDate: {
             type: String,
             required: false
         },
-        subcriptionType: {
+        subscriptionType: {
             type: String,
             required: true
         },
-        subcriptionDate: {
+        subscriptionDate: {
             type: String,
             required: true
         }

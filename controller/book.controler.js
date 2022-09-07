@@ -48,3 +48,39 @@ exports.getAllIssuedBooks=async (req,res)=>{
     });   
 };
 
+exports.addNewBook=async(req, res) => {
+    const { data } = req.body
+    if (!data) return res.status(400).json({
+        success: false,
+        message: "no data provided"
+    })
+    
+    await bookModel.create(data);
+    const allbooks =await bookModel.find();
+    
+    
+
+    
+    return res.status(200).json({
+        success: true,
+        data: allbooks
+    })
+
+};
+
+exports.updateBookById=async(req, res) => {
+    const { id } = req.params
+    const { data } = req.body
+    
+
+   const updateData=await bookModel.findOneAndUpdate({
+       _id:id
+   },data,{
+       new:true
+   })
+    return res.status(200).json({
+        success: true,
+        data: updateData
+    })
+}
+

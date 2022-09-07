@@ -8,7 +8,7 @@ const { model } = require("mongoose");
 //importing model
 const { userModel, bookModel } = require("../models");
 //importing functions
-const { getAllBooks, getAllIssuedBooks, getanyBookById } = require("../controller/book.controler");
+const { getAllBooks, getAllIssuedBooks, getanyBookById, addNewBook, updateBookById } = require("../controller/book.controler");
 
 
 const router = express.Router();
@@ -51,25 +51,7 @@ router.get("/issued/book", getAllIssuedBooks);
  * Parameters: None
  * data: author name genra price publisher id
  */
-router.post("/", (req, res) => {
-    const { data } = req.body
-    if (!data) return res.status(400).json({
-        success: false,
-        message: "no data provided"
-    })
-    const book = books.find((each) => each.id === data.id)
-    if (book) return res.status(404).json({
-        success: false,
-        message: "id already exist"
-    })
-
-    const allbooks = [...books, data]
-    return res.status(200).json({
-        success: true,
-        data: allbooks
-    })
-
-})
+router.post("/", addNewBook)
 
 /**
  * Route:/books/:id
@@ -80,30 +62,7 @@ router.post("/", (req, res) => {
  * data: author name genra price publisher id
  */
 
-router.put("/:id", (req, res) => {
-    const { id } = req.params
-    const { data } = req.body
-    const book = books.find((each) => each.id === id)
-    if (!data) return res.status(400).json({
-        success: false,
-        message: "no data sent by the user"
-    })
-
-    if (!book) return res.status(400).json({
-        success: false,
-        message: "book not found with this id"
-    })
-    const updateData = books.map((each) => {
-        if (each.id === id) {
-            return { ...each, ...data }
-        }
-        return each
-    })
-    return res.status(200).json({
-        success: true,
-        data: updateData
-    })
-})
+router.put("/:id", updateBookById);
 
 /**
  * Route:/books/issuedWithFine
